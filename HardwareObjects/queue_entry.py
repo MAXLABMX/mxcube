@@ -22,6 +22,7 @@ implementations of tasks.
 
 import gevent
 import logging
+import traceback
 import time
 import queue_model_objects_v1 as queue_model_objects
 import pprint
@@ -379,19 +380,20 @@ class TaskGroupQueueEntry(BaseQueueEntry):
         BaseQueueEntry.execute(self)
         group_data = {'sessionId': self.session_hwobj.session_id}
 
-        try:
+        if self.lims_client_hwobj:
+          try:
             gid = self.lims_client_hwobj.\
-                  _store_data_collection_group(group_data)
+                store_data_collection_group(group_data)
             self.get_data_model().lims_group_id = gid
-        except Exception as ex:
+          except Exception as ex:
             msg = 'Could not create the data collection group' + \
-                  ' in lims. Reason: ' + ex.message, self
+                  ' in lims. Reason: ' + ex.message
             raise QueueExecutionException(msg, self)
 
     def pre_execute(self):
         BaseQueueEntry.pre_execute(self)
         self.lims_client_hwobj = self.beamline_setup.lims_client_hwobj
-        self.session_hwobj = self.beamline_setup.session_hwobj
+        self.session_hwobj     = self.beamline_setup.session_hwobj
 
     def post_execute(self):
         BaseQueueEntry.post_execute(self)
@@ -592,16 +594,14 @@ class DataCollectionQueueEntry(BaseQueueEntry):
             try:
                 if dc.experiment_type is EXPERIMENT_TYPE.HELICAL:
                     acq_1, acq_2 = (dc.acquisitions[0], dc.acquisitions[1])
-                    self.collect_hwobj.getChannelObject("helical").setValue(1)
-
                     start_cpos = acq_1.acquisition_parameters.centred_position
                     end_cpos = acq_2.acquisition_parameters.centred_position
 
-                    dc.lims_end_pos_id = self.lims_client_hwobj.\
-                                         store_centred_position(end_cpos)
+                    if self.lims_client_hwobj:
+                        dc.lims_end_pos_id = self.lims_client_hwobj.\
+                                             store_centred_position(end_cpos)
 
-                    helical_oscil_pos = {'1': start_cpos.as_dict(), '2': end_cpos.as_dict()}
-                    self.collect_hwobj.getChannelObject('helical_pos').setValue(helical_oscil_pos)
+                    self.collect_hwobj.set_helical(True, start_cpos, end_cpos)
 
                     msg = "Helical data collection with start" +\
                           "position: " + str(pprint.pformat(start_cpos)) + \
@@ -609,7 +609,7 @@ class DataCollectionQueueEntry(BaseQueueEntry):
                     log.info(msg)
                     list_item.setText(1, "Moving sample")
                 else:
-                    self.collect_hwobj.getChannelObject("helical").setValue(0)
+                    self.collect_hwobj.set_helical(False)
 
                 empty_cpos = queue_model_objects.CentredPosition()
 
@@ -627,7 +627,8 @@ class DataCollectionQueueEntry(BaseQueueEntry):
                     acq_1.acquisition_parameters.centred_position = cpos
                     acq_1.acquisition_parameters.centred_position.snapshot_image = snapshot
 
-                dc.lims_start_pos_id = self.lims_client_hwobj.store_centred_position(cpos)
+                if self.lims_client_hwobj:
+                    dc.lims_start_pos_id = self.lims_client_hwobj.store_centred_position(cpos)
                     
                 #log.info("Calling collect hw-object with: " + str(dc.as_dict()))
 
@@ -644,6 +645,7 @@ class DataCollectionQueueEntry(BaseQueueEntry):
                 list_item.setText(1, 'Stopped')
                 raise QueueAbortedException('Queue stopped', self)
             except Exception as ex:
+                logging.info("data collection exec. exception occurred. %s " % traceback.format_exc() )
                 raise QueueExecutionException(ex.message, self)
         else:
             log.error("Could not call the data collection routine," +\

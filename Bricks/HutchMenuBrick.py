@@ -722,9 +722,10 @@ class HutchMenuBrick(BlissWidget):
               try:
                 self.__beam.move(beam_x, beam_y)
                 try:
-                  get_beam_info = self.minidiff.getCommandObject("getBeamInfo")
+                  #get_beam_info = self.minidiff.getCommandObject("getBeamInfo")
                   if force or get_beam_info.isSpecReady():
-                    get_beam_info(callback=self._updateBeam, error_callback=None)
+                    self.minidiff.getBeamInfo( callback= self._updateBeam, error_callback=None)
+                    #get_beam_info(callback=self._updateBeam, error_callback=None)
                 except:
                   logging.getLogger().exception("Could not get beam size: cannot display beam")
                   self.__beam.hide()

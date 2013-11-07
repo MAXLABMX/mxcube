@@ -295,7 +295,24 @@ class MiniDiff(Equipment):
 
 
     def isReady(self):
-      return self.isValid() and all([not m.motorIsMoving() for m in (self.sampleXMotor, self.sampleYMotor, self.zoomMotor, self.phiMotor, self.phizMotor, self.phiyMotor)])
+      if self.isValid():
+         motorsQuiet = True 
+         logging.info("Motor sampleX is %s" % str(self.sampleYMotor) )
+         logging.info("Motor sampleY is %s" % str(self.sampleYMotor) )
+         logging.info("Motor zoom is %s" % str(self.zoomMotor) )
+         logging.info("Motor phi is %s" % str(self.phiMotor) )
+         logging.info("Motor phiz is %s" % str(self.phizMotor) )
+         logging.info("Motor phiy is %s" % str(self.phiyMotor) )
+   
+         for m in (self.sampleXMotor, self.sampleYMotor, self.zoomMotor, self.phiMotor, self.phizMotor, self.phiyMotor):
+            if m.motorIsMoving():
+                 motorsQuiet = False
+   
+         return motorsQuiet
+      else:
+         return False
+
+      #return self.isValid() and all([not m.motorIsMoving() for m in (self.sampleXMotor, self.sampleYMotor, self.zoomMotor, self.phiMotor, self.phizMotor, self.phiyMotor)])
     
 
     def isValid(self):
@@ -307,6 +324,12 @@ class MiniDiff(Equipment):
             self.phiyMotor is not None and \
             self.camera is not None
 
+
+    def getBeamInfo(self, callback=None, error_callback=None):
+        logging.info(" I AM command getBeamInfo in MiniDiff.py ")
+        cmd_obj = self.getCommandObject("getBeamInfo")
+        if cmd_obj:
+           cmd_obj( callback, error_callback )
 
     def apertureChanged(self, *args):
         # will trigger minidiffReady signal for update of beam size in video
