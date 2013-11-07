@@ -326,10 +326,9 @@ class MiniDiff(Equipment):
 
 
     def getBeamInfo(self, callback=None, error_callback=None):
-        logging.info(" I AM command getBeamInfo in MiniDiff.py ")
         cmd_obj = self.getCommandObject("getBeamInfo")
         if cmd_obj:
-           cmd_obj( callback, error_callback )
+           cmd_obj(callback, error_callback)
 
     def apertureChanged(self, *args):
         # will trigger minidiffReady signal for update of beam size in video
