@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<equipment class="Microdiff">
+  <username>Microdiff</username>
+  <device role="camera" hwrid="/ccd/md_camera"></device>
+  <exporter_address>130.235.94.124:9001</exporter_address>
+  <referencePosition>
+    <phi delta="1">0</phi>
+    <phiz delta="0.1">0.350033</phiz>
+    <focus delta="0.1">-0.299889</focus>
+    <phiy delta="0.01">22</phiy>
+    <sampx delta="0.01">0.323324</sampx>
+    <sampy delta="0.01">0.330093</sampy>
+    <bstopz delta="0.01">-59.9999</bstopz>
+  </referencePosition>
+  <referencePositionWithKappa>
+    <phi delta="1">0</phi>
+    <phiz delta="0.1">0.350033</phiz>
+    <focus delta="0.1">-0.299889</focus>
+    <phiy delta="0.01">22</phiy>
+    <sampx delta="0.01">-0.275041</sampx>
+    <sampy delta="0.01">0.330093</sampy>
+    <bstopz delta="0.01">-79.9965</bstopz>
+    <kap1 delta="0.01">0</kap1>
+    <kap2 delta="0.01">0</kap2>
+  </referencePositionWithKappa>
+  <resetPosition>
+    <phiz>-3.1543</phiz>
+    <focus>-2.25</focus>
+    <phiy>27.6282</phiy>
+    <sampx>-2.62</sampx>
+    <sampy>2.332</sampy>
+  </resetPosition>
+  <motors>
+    <phi>
+      <device role="phi"    hwrid="/udiff_omega"></device>
+      <device role="phiz"   hwrid="/udiff_phiz"></device>
+    </phi>
+    <sample>
+      <device role="zoom"       hwrid="/udiff_zoom"/>
+      <device role="light"      hwrid="/udiff_lightmot"/>
+      <device role="lightInOut" hwrid="/udiff_light"/>
+      <device role="focus"      hwrid="/udiff_phix"/>
+      <device role="phiy"       hwrid="/udiff_phiy"/>
+      <device role="sampx"      hwrid="/udiff_sampx"/>
+      <device role="sampy"      hwrid="/udiff_sampy"/>
+      <device role="kappa"      hwrid="/udiff_kappa"/>
+      <device role="kappa_phi"  hwrid="/udiff_kappaphi"/>
+    </sample>
+    <more>
+      <device hwrid="/spec_mxCuBE/dtox"/>
+      <!--device hwrid="/spec_mxCuBE/shuty"/ -->
+      <!--device hwrid="/spec_mxCuBE/shutz" -->
+    </more>
+  </motors>
+  <command>
+     <type>spec</type>
+     <version>130.235.94.114:kappa</version>
+     <name>Minikappa Load</name>
+     <toexecute>minikappa_autoload</toexecute>
+  </command>
+  <wagolight>/udiff_light</wagolight>
+
+  <!--aperture>/udiff_aperturemot</aperture-->
+  <!--samplechanger>/sc</samplechanger-->
+  <command type="tango" name="save_centring_position" tangoname="i9113/MicroDiff/NewMD">saveCentringPositions</command>
+  <command version="bli9113-spec:kappa" type="spec" name="getBeamInfo">getMxBeamInfo911</command>
+  <!--channel version="bli9113-spec:kappa" type="spec" name="auto_centring_flag">AUTO_CENTRING_FLAG</channel>
+  <channel version="bli9113-spec:kappa" type="spec" name="auto_loop_centring_enabled">ENABLE_AUTO_LOOP_CENTRING</channel>
+  <channel version="bli9113-spec:kappa" type="spec" name="auto_crystal_centring_enabled">ENABLE_AUTO_CRYSTAL_CENTRING</channel>
+  <channel version="bli9113-spec:kappa" type="spec" name="playback_centring_enabled">ENABLE_PLAYBACK_CENTRING</channel-->
+</equipment>

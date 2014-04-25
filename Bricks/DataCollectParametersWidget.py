@@ -56,6 +56,7 @@ class DirectoryInput(QWidget):
             self.emit(PYSIGNAL("returnPressed"),())
 
     def validateDirectory(self,directory=None):
+        logging.info("validating directory %s " % directory)
         valid=True
         if directory is None:
             directory=self.text()
@@ -67,6 +68,7 @@ class DirectoryInput(QWidget):
         else:
             valid=False
             self.setPaletteBackgroundColor(DataCollectParametersWidget.PARAMETER_STATE["INVALID"])
+        logging.info("validating directory returns %s" % str(valid))
         return valid
 
     def txtChanged(self,txt):
@@ -87,6 +89,7 @@ class DirectoryInput(QWidget):
         get_dir.updateGeometry()
         d=get_dir.getExistingDirectory(self.lineEdit.text(),self,"",\
             "Select a directory",True,False)
+        logging.info("we selected directory: %s " % d)
         if d is not None and len(d)>0:
             self.lineEdit.setText(d)
 
@@ -103,7 +106,9 @@ class DirectoryInput(QWidget):
         try:
             dirs.index("%s%s" % (self.proposalCode,self.proposalNumber))
         except ValueError:
-            return False
+            logging.info("not a valid directory name - propCode, propNumber (%s/%s)" % (self.proposalCode, self.proposalNumber))
+            return True
+            #return False
         else:
             return True
 
@@ -269,6 +274,7 @@ class LineEditInput(QLineEdit):
     def txtChanged(self,txt):
         txt=str(txt)
         valid=None
+        logging.info("checking if dir name %s is valid" % txt) 
         if self.validator() is not None:
             if self.hasAcceptableInput():
                 valid=True
