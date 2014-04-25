@@ -19,7 +19,9 @@ class ProposalGUIEvent(QCustomEvent):
         self.arguments = arguments
 
 ###
+###
 ### Brick to show the current proposal & session (and login/out the user)
+###
 ###
 class MaxLoginBrick(BlissWidget):
     #NOBODY_STR="<nobr><b>Login is required to use ISPyB!</b>"
