@@ -137,6 +137,13 @@ class CatsMaintWidget(QWidget):
         groupBox13Layout.addWidget(self.btSafe)
         CatsMaintWidgetLayout.addWidget(self.groupBox13)
 
+        self.btAbort = QPushButton(self.groupBox13,"btAbort")
+        self.btAbort.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.btSafe.sizePolicy().hasHeightForWidth()))
+        btAbort_font = QFont(self.btAbort.font())
+        self.btAbort.setFont(btAbort_font)
+        groupBox13Layout.addWidget(self.btAbort)
+        CatsMaintWidgetLayout.addWidget(self.groupBox13)
+
         self.groupBox5_2 = QGroupBox(self,"groupBox5_2")
         self.groupBox5_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.groupBox5_2.sizePolicy().hasHeightForWidth()))
         self.groupBox5_2.setColumnLayout(0,Qt.Vertical)
@@ -169,6 +176,7 @@ class CatsMaintWidget(QWidget):
         self.setTabOrder(self.btLid3Close,self.btResetError)
         self.setTabOrder(self.btResetError,self.btBack)
         self.setTabOrder(self.btBack,self.btSafe)
+        self.setTabOrder(self.btBack,self.btAbort)
 
 
     def languageChange(self):
@@ -192,6 +200,7 @@ class CatsMaintWidget(QWidget):
         self.btResetError.setText(self.__tr("Reset Error"))
         self.btBack.setText(self.__tr("Back"))
         self.btSafe.setText(self.__tr("Safe"))
+        self.btAbort.setText(self.__tr("Abort"))
         self.groupBox5_2.setTitle(self.__tr("LN2 Regulation"))
         self.lblRegulationState.setText(self.__tr("Regulation"))
         self.btRegulationOn.setText(self.__tr("Regulation On"))

@@ -36,12 +36,13 @@ class CatsMaintBrick(BaseComponents.BlissWidget):
         qt.QObject.connect(self.widget.btResetError, qt.SIGNAL('clicked()'), self._resetError)
         qt.QObject.connect(self.widget.btBack, qt.SIGNAL('clicked()'), self._backTraj)                     
         qt.QObject.connect(self.widget.btSafe, qt.SIGNAL('clicked()'), self._safeTraj)                     
+        qt.QObject.connect(self.widget.btAbort, qt.SIGNAL('clicked()'), self._abort)                     
         qt.QObject.connect(self.widget.btRegulationOn, qt.SIGNAL('clicked()'), self._regulationOn)                     
                 
         self.device=None
-        self._pathRunning = None
-        self._poweredOn = None
-        self._regulationOn = None
+        self._pathRunning = False
+        self._poweredOn = False
+        self._regulationOn = False
 
         self._lid1State = False
         self._lid2State = False
@@ -135,16 +136,19 @@ class CatsMaintBrick(BaseComponents.BlissWidget):
             self.widget.btResetError.setEnabled(False)
             self.widget.btBack.setEnabled(False)
             self.widget.btSafe.setEnabled(False)
+            self.widget.btAbort.setEnabled(True)
             self.widget.btRegulationOn.setEnabled(False)
             self.widget.lblMessage.setText('')
         else:
             ready = not self._pathRunning
             #ready = not self.device.isDeviceReady()
+            
             self.widget.btPowerOn.setEnabled(ready and not self._poweredOn)
             self.widget.btPowerOff.setEnabled(ready and self._poweredOn)
             self.widget.btResetError.setEnabled(ready)
             self.widget.btBack.setEnabled(ready and self._poweredOn)
             self.widget.btSafe.setEnabled(ready and self._poweredOn)
+            self.widget.btSafe.setEnabled(True)
 
             self.widget.btRegulationOn.setEnabled(not self._regulationOn)
 
@@ -238,6 +242,14 @@ class CatsMaintBrick(BaseComponents.BlissWidget):
             if self.device is not None:
                 #self.device._doBack()
                 self.device.backTraj()
+        except:
+            qt.QMessageBox.warning( self, "Error",str(sys.exc_info()[1]))
+
+    def _abort(self):
+        logging.getLogger("user_level_log").info("CATS: Aborting.")
+        try:
+            if self.device is not None:
+                self.device._cmdAbort()
         except:
             qt.QMessageBox.warning( self, "Error",str(sys.exc_info()[1]))
 
