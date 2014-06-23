@@ -41,7 +41,7 @@
   <default_acquisition_values>
     <exposure_time>3</exposure_time>
     <start_angle>0.0</start_angle>
-    <range>0.1</range>
+    <range>1</range>
     <number_of_passes>1</number_of_passes>
     <start_image_number>1</start_image_number>
     <run_number>1</run_number>
@@ -52,7 +52,7 @@
 
   <!-- Default values for a characterization -->
   <default_characterisation_values>
-    <exposure_time>0.037</exposure_time>
+    <exposure_time>2</exposure_time>
     <start_angle>0.0</start_angle>
     <range>1</range>
     <number_of_passes>1</number_of_passes>
