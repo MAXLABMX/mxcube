@@ -720,10 +720,12 @@ class HutchMenuBrick(BlissWidget):
           pass
     
     def _updateBeam(self, ret):
-        #logging.info("UPDATE BEAM %s", ret)
+        logging.info("UPDATE BEAM %s", ret)
         self._bx = float(ret["size_x"])
+        #self._bx = float(ret["size_x"])/1000
         self._bshape = ret["shape"]
         self._by = float(ret["size_y"])
+        #self._by = float(ret["size_y"])/1000
         self._drawBeam()
 
     def updateBeam(self,force=False):
