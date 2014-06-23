@@ -18,7 +18,7 @@
   <object href="/spec_mxCuBE/res"  role="resolution"/>
 
   <directory_prefix>data1</directory_prefix>
-  <auto_processing_server>localhost:23640</auto_processing_server>
+  <!--auto_processing_server>localhost:23640</auto_processing_server-->
   <input_files_server>localhost:5698</input_files_server>
 
   <command type="spec" name="get_resolution_at_corner">getMxResolutionAtCorner</command>
@@ -53,6 +53,28 @@
   <channel type="spec" name="helical">HELICAL_OSCIL</channel>
   <channel type="spec" name="helical_pos">HELICAL_OSCIL_POS</channel>
   <channel type="spec" name="helical_pars">HELICAL_PARS</channel-->
+  <!--auto_processing>
+      <program>
+          <executable>/opt/pxsoft/bin/autoproc_master.pl</executable>
+          <event>before image after end_multicollect</event>
+      </program>
+      <program>
+          <executable>/users/blissadm/bin/autoproc-launcher.py</executable>
+          <event>before</event>
+      </program>
+  </auto_processing-->
+
+  <auto_processing>
+     <program>
+        <executable>/usr/local/xtal/autoproc/autoproc_master.pl</executable>
+        <event>before image after end_multicollect</event>
+     </program>
+     <program>
+        <executable>/home/blissadm/bin/autoproc-launcher.py</executable>
+        <event>before</event>
+     </program>
+  </auto_processing>
+
 
 </object>
 

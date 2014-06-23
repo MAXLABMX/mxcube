@@ -5,28 +5,33 @@
             <value>9.900000e-01</value>
         </aimedCompleteness>
         <aimedIOverSigmaAtHighestResolution>
-            <value>3.000000e+00</value>
+            <!--value>3.000000e+00</value-->
+            <value>2.000000e+00</value>
         </aimedIOverSigmaAtHighestResolution>
         <aimedMultiplicity>
             <value>4.000000e+00</value>
         </aimedMultiplicity>
         <aimedResolution>
-            <value>3.000000e+00</value>
+            <!--value>3.000000e+00</value-->
+            <value>1.000000e+00</value>
         </aimedResolution>
         <complexity>
             <value>min</value>
         </complexity>
         <maxExposureTimePerDataCollection>
-            <value>1.500000e+04</value>
+            <!--value>1.500000e+04</value-->
+            <value>1.500000e+05</value>
         </maxExposureTimePerDataCollection>
     </diffractionPlan>
     <experimentalCondition>
         <beam>
             <flux>
+                <!--value>2.000000e+11</value-->
                 <value>2.000000e+11</value>
             </flux>
             <minExposureTimePerImage>
-                <value>5.000000e-01</value>
+                <!--value>5.000000e-01</value-->
+                <value>2.0</value>
             </minExposureTimePerImage>
             <size>
                 <x>
@@ -39,7 +44,8 @@
         </beam>
         <goniostat>
             <maxOscillationSpeed>
-                <value>3.600000e+02</value>
+                <!--value>3.600000e+02</value-->
+                <value>2.000000e-01</value>
             </maxOscillationSpeed>
             <minOscillationWidth>
                 <value>2.000000e-01</value>
