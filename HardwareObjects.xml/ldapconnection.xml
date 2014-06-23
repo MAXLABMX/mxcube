@@ -1,0 +1,4 @@
+<procedure class="MaxLdapLogin">
+  <ldaphost>srvv-ldapdemo-0.maxlab.lu.se</ldaphost>
+  <ldapport>389</ldapport>
+</procedure>

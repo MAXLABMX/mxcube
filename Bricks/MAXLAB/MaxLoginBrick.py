@@ -1,15 +1,13 @@
+import re
 from BlissFramework.BaseComponents import BlissWidget
 from BlissFramework import Icons
 from qt import *
 import logging
 import time
-from datetime import datetime
 import os
-import sys
+from BlissFramework.Utils import widget_colors
 
-__category__ = 'MaxLab'
-
-ENV_BEAMLINE_NAME = 'SMIS_BEAMLINE_NAME'
+__category__= "MaxLab"
 
 PROPOSAL_GUI_EVENT = QEvent.User
 class ProposalGUIEvent(QCustomEvent):
@@ -19,28 +17,26 @@ class ProposalGUIEvent(QCustomEvent):
         self.arguments = arguments
 
 ###
-###
 ### Brick to show the current proposal & session (and login/out the user)
 ###
-###
 class MaxLoginBrick(BlissWidget):
-    #NOBODY_STR="<nobr><b>Login is required to use ISPyB!</b>"
-    NOBODY_STR="<nobr><b>Login is optional</b>"
+    NOBODY_STR="<nobr><b>Login is required for collecting data!</b>"
 
     def __init__(self, *args):
         BlissWidget.__init__(self, *args)
 
         # Initialize HO
-        self.ldapConnection = None
-        self.dbConnection   = None
-        self.localLogin     = None
+        self.ldapConnection=None
+        self.dbConnection=None
+        self.localLogin=None
+        self.session_hwobj = None
 
         # Initialize session info
         self.proposal=None
         self.session=None
         self.person=None
         self.laboratory=None
-        self.sessionId      =None
+        #self.sessionId=None
         self.inhouseProposal=None
 
         self.instanceServer=None
@@ -51,42 +47,44 @@ class MaxLoginBrick(BlissWidget):
         self.addProperty('localLogin','string','')
         self.addProperty('titlePrefix','string','')
         self.addProperty('autoSessionUsers','string','')
-        self.addProperty('codes','string','ih mx')
+        self.addProperty('codes','string','fx ifx ih im ix ls mx opid')
         self.addProperty('icons','string','')
         self.addProperty('serverStartDelay','integer',500)
         self.addProperty('dbConnection','string')
+        self.addProperty('session', 'string', '/session')
 
         self.defineSignal('sessionSelected',())
         self.defineSignal('setWindowTitle',())
         self.defineSignal('loggedIn', ())
-
+        self.defineSignal('user_group_saved', ())
         self.defineSlot('setButtonEnabled',())
         self.defineSlot('impersonateProposal',())
 
-
         # Initialize GUI elements
-        self.contentsBox = QHGroupBox("User",self)
-        self.contentsBox.setInsideMargin(2)
-        self.contentsBox.setInsideSpacing(1)
+        self.contentsBox=QHGroupBox("User",self)
+        self.contentsBox.setInsideMargin(4)
+        self.contentsBox.setInsideSpacing(5)
 
-        self.loginBox=QHBox(self.contentsBox)
-        #code_label=QLabel("Code:",self.loginBox)
+        self.loginBox=QHBox(self.contentsBox, 'login_box')
+        #code_label=QLabel("  Code: ",self.loginBox)
         #self.propType=QComboBox(self.loginBox)
         #self.propType.setEditable(True)
+        
         #self.propType.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
-        #self.propType.setPaletteBackgroundColor(QWidget.yellow)
+        #self.propType.setPaletteBackgroundColor(widget_colors.LIGHT_RED)
         #dash_label=QLabel(" - ",self.loginBox)
-        user_label=QLabel("Username:",self.loginBox)
-        self.userName=QLineEdit(self.loginBox)
-        #self.userName.setValidator(QIntValidator(0,99999,self.userName))
-        self.userName.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
-        #self.userName.setPaletteBackgroundColor(QWidget.yellow)
-        password_label=QLabel(" Password:",self.loginBox)
-        self.propPassword=QLineEdit(self.loginBox)
-        self.propPassword.setEchoMode(QLineEdit.Password)
-        self.propPassword.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
-        #self.propPassword.setPaletteBackgroundColor(QWidget.yellow)
-        self.connect(self.propPassword, SIGNAL('returnPressed()'), self.login)
+        username_label=QLabel("Username",self.loginBox)
+        self.username=QLineEdit(self.loginBox)
+        self.username.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
+        self.username.setPaletteBackgroundColor(widget_colors.LIGHT_RED)
+        self.username.setFixedWidth(50)
+        password_label=QLabel("   Password: ",self.loginBox)
+        self.userPassword=QLineEdit(self.loginBox)
+        self.userPassword.setEchoMode(QLineEdit.Password)
+        self.userPassword.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
+        self.userPassword.setPaletteBackgroundColor(widget_colors.LIGHT_RED)
+        self.userPassword.setFixedWidth(75)
+        self.connect(self.userPassword, SIGNAL('returnPressed()'), self.login)
 
         self.loginButton=QToolButton(self.loginBox)
         self.loginButton.setTextLabel("Login")
@@ -95,21 +93,45 @@ class MaxLoginBrick(BlissWidget):
         self.loginButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.connect(self.loginButton,SIGNAL('clicked()'),self.login)
 
+        #labels_box=QHBox(self.contentsBox, 'contents_box')
+        #labels_box.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        #font = labels_box.font()
+        #font.setPointSize(10)
+        #labels_box.setFont(font)
+
+        #self.proposalLabel=QLabel(ProposalBrick2.NOBODY_STR,labels_box)
+        #self.proposalLabel.setAlignment(Qt.AlignCenter)
+
+        self.user_group_layout = QHBox(self.contentsBox, 'group_box')
+
+        self.titleLabel=QLabel(self.user_group_layout)
+        self.titleLabel.setAlignment(Qt.AlignCenter)
+        self.titleLabel.hide()
+
+        self.user_group_label = QLabel("  Group: ", self.user_group_layout)
+        self.user_group_ledit = QLineEdit(self.user_group_layout)
+        self.user_group_ledit.setFixedWidth(100)
+        self.user_group_save_button = QToolButton(self.user_group_layout)
+        self.user_group_save_button.setText("Set")
+        self.connect(self.user_group_save_button, SIGNAL('clicked()'), self.save_group)
+        self.connect(self.user_group_ledit, SIGNAL('returnPressed ()'), self.save_group)
+        self.connect(self.user_group_ledit,
+                     SIGNAL('textChanged(const QString &)'), self.user_group_changed)
+        self.user_group_label.hide()
+        self.user_group_ledit.hide()
+        self.user_group_save_button.hide()
+        self.saved_group = True
+
         self.logoutButton=QToolButton(self.contentsBox)
         self.logoutButton.setTextLabel("Logout")
+        font = self.logoutButton.font()
+        font.setPointSize(10)
+        self.logoutButton.setFont(font)
         self.logoutButton.setUsesTextLabel(True)
         self.logoutButton.setTextPosition(QToolButton.BesideIcon)
         self.logoutButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.connect(self.logoutButton,SIGNAL('clicked()'),self.openLogoutDialog)
         self.logoutButton.hide()
-
-        labels_box=QHBox(self.contentsBox)
-        labels_box.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        self.titleLabel=QLabel(labels_box)
-        self.titleLabel.setAlignment(Qt.AlignCenter)
-        self.titleLabel.hide()
-        self.proposalLabel=QLabel(MaxLoginBrick.NOBODY_STR,labels_box)
-        self.proposalLabel.setAlignment(Qt.AlignCenter)
 
         # Initialize layout
         QHBoxLayout(self)
@@ -117,8 +139,33 @@ class MaxLoginBrick(BlissWidget):
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.contentsBox.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
+    def save_group(self):
+        user_group = str(self.user_group_ledit.text())
+
+        pattern = r"^[a-zA-Z0-9_-]*$"
+        valid = re.match(pattern, user_group, flags = 0).group() == user_group
+        
+        if valid:
+            self.saved_group = True
+            self.user_group_ledit.setPaletteBackgroundColor(widget_colors.LIGHT_GREEN)
+            msg = 'User group set to: %s' % str(self.user_group_ledit.text())
+            logging.getLogger("user_level_log").info(msg)
+            self.emit(PYSIGNAL("user_group_saved"), (self.user_group_ledit.text(),))
+        else:
+            msg = 'User group not valid, please enter a valid user group'
+            logging.getLogger("user_level_log").info(msg)
+            self.user_group_ledit.setPaletteBackgroundColor(widget_colors.LIGHT_RED)
+            
+    def user_group_changed(self, value):
+        if self.saved_group:
+            msg = 'User group changed, press set to apply change'
+            logging.getLogger("user_level_log").warning(msg)
+            self.user_group_ledit.setPaletteBackgroundColor(widget_colors.LIGHT_RED)
+
+        self.saved_group = False
+        
     def customEvent(self,event):
-        #logging.getLogger().debug("MaxLoginBrick: custom event (%s)" % str(event))
+        #logging.getLogger().debug("ProposalBrick2: custom event (%s)" % str(event))
 
         if self.isRunning():
             if event.type() == PROPOSAL_GUI_EVENT:
@@ -126,23 +173,23 @@ class MaxLoginBrick(BlissWidget):
                     method=event.method
                     arguments=event.arguments
                 except Exception,diag:
-                    logging.getLogger().exception("MaxLoginBrick: problem in event! (%s)" % str(diag))
+                    logging.getLogger().exception("ProposalBrick2: problem in event! (%s)" % str(diag))
                 except:
-                    logging.getLogger().exception("MaxLoginBrick: problem in event!")
+                    logging.getLogger().exception("ProposalBrick2: problem in event!")
                 else:
-                    #logging.getLogger().debug("MaxLoginBrick: custom event method is %s" % method)
+                    #logging.getLogger().debug("ProposalBrick2: custom event method is %s" % method)
                     if callable(method):
                         try:
                             method(*arguments)
                         except Exception,diag:
-                            logging.getLogger().exception("MaxLoginBrick: uncaught exception! (%s)" % str(diag))
+                            logging.getLogger().exception("ProposalBrick2: uncaught exception! (%s)" % str(diag))
                         except:
-                            logging.getLogger().exception("MaxLoginBrick: uncaught exception!")
+                            logging.getLogger().exception("ProposalBrick2: uncaught exception!")
                         else:
-                            #logging.getLogger().debug("MaxLoginBrick: custom event finished")
+                            #logging.getLogger().debug("ProposalBrick2: custom event finished")
                             pass
                     else:
-                        logging.getLogger().warning('MaxLoginBrick: uncallable custom event!')
+                        logging.getLogger().warning('ProposalBrick2: uncallable custom event!')
 
     # Enabled/disabled the login/logout button
     def setButtonEnabled(self,state):
@@ -151,14 +198,9 @@ class MaxLoginBrick(BlissWidget):
 
     def impersonateProposal(self,proposal_code,proposal_number):
         if BlissWidget.isInstanceUserIdInhouse():
-            try:
-                beamline_name=os.environ[ENV_BEAMLINE_NAME]
-            except KeyError:
-                pass
-            else:
-                self._do_login(proposal_code,proposal_number,None,beamline_name, impersonate=True)
+            self._do_login(proposal_code, proposal_number, None, self.dbConnection.beamline_name, impersonate=True)
         else:
-            logging.getLogger().debug('MaxLoginBrick: cannot impersonate unless logged as the inhouse user!')
+            logging.getLogger().debug('ProposalBrick2: cannot impersonate unless logged as the inhouse user!')
 
     # Opens the logout dialog (modal); if the answer is OK then logout the user
     def openLogoutDialog(self):
@@ -176,7 +218,7 @@ class MaxLoginBrick(BlissWidget):
     # Logout the user; reset the brick; changes from logout mode to login mode
     def logout(self):
         # Reset brick info
-        self.userName.setText("")
+        self.username.setText("")
         self.proposal=None
         self.session=None
         #self.sessionId=None
@@ -186,17 +228,37 @@ class MaxLoginBrick(BlissWidget):
         self.loginBox.show()
         self.logoutButton.hide()
         self.titleLabel.hide()
-        self.proposalLabel.setText(MaxLoginBrick.NOBODY_STR)
-        QToolTip.add(self.proposalLabel,"")
-       
+        self.user_group_label.hide()
+        self.user_group_ledit.hide()
+        self.user_group_save_button.hide()
+        
+        #self.proposalLabel.setText(ProposalBrick2.NOBODY_STR)
+        #QToolTip.add(self.proposalLabel,"")
+      
+        #resets active proposal
+        self.resetProposal()
+ 
         # Emit signals clearing the proposal and session
         self.emit(PYSIGNAL("setWindowTitle"),(self["titlePrefix"],))
         self.emit(PYSIGNAL("sessionSelected"),(None, ))
         self.emit(PYSIGNAL("loggedIn"), (False, ))
 
+
+    def resetProposal(self):
+        self.session_hwobj.proposal_code = None
+        self.session_hwobj.session_id = None
+        self.session_hwobj.proposal_id = None
+        self.session_hwobj.proposal_number = None
+
+
+
     # Sets the current session; changes from login mode to logout mode
     def setProposal(self,proposal,person,laboratory,session,localcontact):
         self.dbConnection.enable()
+        self.session_hwobj.proposal_code = proposal['code']
+        self.session_hwobj.session_id = session['sessionId']
+        self.session_hwobj.proposal_id = proposal['proposalId']
+        self.session_hwobj.proposal_number = proposal['number']
 
         # Change mode
         self.loginBox.hide()
@@ -210,7 +272,7 @@ class MaxLoginBrick(BlissWidget):
 
         code=proposal["code"].lower()
         if code=="":
-            self.proposalLabel.setText("<nobr><i>%s</i>" % personFullName(person))
+            #self.proposalLabel.setText("<nobr><i>%s</i>" % personFullName(person))
             session_id=""
             logging.getLogger().warning("Using local login: the data collected won't be stored in the database")
             self.dbConnection.disable()
@@ -235,20 +297,25 @@ class MaxLoginBrick(BlissWidget):
             if laboratory.has_key('name'):
                 person_name=person_name+" "+laboratory['name']
             localcontact_name=personFullName(localcontact)
-            title="<b>%s-%s %s</b>" % (proposal['code'],proposal['number'],title)
+            #title="<big><b>%s-%s %s</b></big>" % (proposal['code'],proposal['number'],title)
             if localcontact:
-                header="%s - Dates: %s to %s Local contact: %s" % (person_name,start_date,end_date,localcontact_name)
+                header="%s Dates: %s to %s Local contact: %s" % (person_name,start_date,end_date,localcontact_name)
             else:
-                header="%s - Dates: %s to %s" % (person_name,start_date,end_date)
+                header="%s Dates: %s to %s" % (person_name,start_date,end_date)
 
             # Set interface info and signal the new session
-            self.proposalLabel.setText("<nobr><i>(%s)</i>" % header)
-            self.titleLabel.setText("<nobr><b>%s</b>" % title)
-            self.titleLabel.show()
+            proposal_text = "%s-%s" % (proposal['code'],proposal['number'])
+            self.titleLabel.setText("<nobr>   User: <b>%s</b>" % proposal_text)
+            tooltip = "\n".join([proposal_text, header, title]) 
             if comments:
-                QToolTip.add(self.proposalLabel,"Comments: "+comments)
-                QToolTip.add(self.titleLabel,"Comments: "+comments)
-
+                tooltip+='\n'
+                tooltip+='Comments: '+comments 
+            QToolTip.add(self.titleLabel, tooltip)
+            self.titleLabel.show()
+            self.user_group_label.show()
+            self.user_group_ledit.show()
+            self.user_group_save_button.show()
+        
             try:
                 end_time=session['endDate'].split()[1]
                 end_date_list=end_date.split('-')
@@ -262,7 +329,7 @@ class MaxLoginBrick(BlissWidget):
             except (TypeError,IndexError,ValueError):
                 expiration_time=0
 
-        is_inhouse=self.dbConnection.isInhouseUser("",proposal["number"])
+        is_inhouse = self.session_hwobj.is_inhouse(proposal["code"], proposal["number"])
         win_title="%s (%s-%s)" % (self["titlePrefix"],\
             self.dbConnection.translate(proposal["code"],'gui'),\
             proposal["number"])
@@ -278,33 +345,54 @@ class MaxLoginBrick(BlissWidget):
 
     def setCodes(self,codes):
         codes_list=codes.split()
-        self.propType.clear()
-        for cd in codes_list:
-            self.propType.insertItem(cd)
+        #self.propType.clear()
+        #for cd in codes_list:
+        #    self.propType.insertItem(cd)
 
     def run(self):
-        try:
-            beamline=os.environ[ENV_BEAMLINE_NAME]
-        except KeyError:
-            beamline=""
-        if beamline=="":
-            logging.getLogger().warning("ProposalBrick: unknown beamline (unable to validate sessions)")
-        else:
-            logging.getLogger().info("Beamline is %s" % beamline)
+        self.setEnabled(self.session_hwobj is not None)
+          
+        # find if we are using ldap, dbconnection, etc. or not
+        if None in (self.ldapConnection, self.dbConnection):
+          self.loginBox.hide()
+          self.titleLabel.setText("<nobr><b>%s</b></nobr>" % os.environ["USER"])
+          self.titleLabel.show()
+          self.user_group_label.show()
+          self.user_group_ledit.show()
+          self.user_group_save_button.show()
 
-        state=False
-        if self.localLogin is not None:
-            state=True
-        elif self.ldapConnection is not None and beamline!="":
-            state=True
-        self.setEnabled(state)
+          self.session_hwobj.proposal_code = ""
+          self.session_hwobj.session_id = 1
+          self.session_hwobj.proposal_id = ""
+          self.session_hwobj.proposal_number = "" 
 
-        self.emit(PYSIGNAL("setWindowTitle"),(self["titlePrefix"],))
-        self.emit(PYSIGNAL("sessionSelected"),(None, ))
-        self.emit(PYSIGNAL("loggedIn"), (False, ))
+          self.emit(PYSIGNAL("setWindowTitle"), (self["titlePrefix"],))
+          self.emit(PYSIGNAL("loggedIn"), (False, ))
+          self.emit(PYSIGNAL("sessionSelected"),(None, ))
+          self.emit(PYSIGNAL("loggedIn"), (True, ))
+          self.emit(PYSIGNAL("sessionSelected"), (self.session_hwobj.session_id,
+                                                  str(os.environ["USER"]),
+                                                  0,
+                                                  '',
+                                                  '',
+                                                  self.session_hwobj.session_id, 
+                                                  False))
+        else: 
+          self.emit(PYSIGNAL("setWindowTitle"),(self["titlePrefix"],))
+          self.emit(PYSIGNAL("sessionSelected"),(None, ))
+          self.emit(PYSIGNAL("loggedIn"), (False, ))
 
         start_server_event=ProposalGUIEvent(self.startServers,())
         qApp.postEvent(self,start_server_event)
+
+        #self.contentsBox.font()
+        #font.setPointSize(12)
+        #self.contentsBox.setFont(font)
+
+        #font = self.loginBox.font()
+        #font.setPointSize(10)
+        #self.loginBox.setFont(font)
+        
 
     def startServers(self):
         if self.instanceServer is not None:
@@ -353,9 +441,9 @@ class MaxLoginBrick(BlissWidget):
             locallogin_person=self.localLogin.person
         except AttributeError:
             locallogin_person="local user"
-        pers_dict = {'familyName':locallogin_person}
-        lab_dict  = {'name':'ESRF'}
-        cont_dict = {'familyName':'local contact'}
+        pers_dict={'familyName':locallogin_person}
+        lab_dict={'name':'ESRF'}
+        cont_dict={'familyName':'local contact'}
         self.acceptLogin(prop_dict,pers_dict,lab_dict,ses_dict,cont_dict)
 
     def askForNewSession(self):
@@ -373,69 +461,50 @@ class MaxLoginBrick(BlissWidget):
 
     # Handler for the Login button (check the password in LDAP)
     def login(self):
-        #self.setEnabled(True)
+        self.saved_group = False
+        self.user_group_ledit.setPaletteBackgroundColor(widget_colors.WHITE)
+        self.user_group_ledit.setText('')
         self.setEnabled(False)
 
-        #prop_type     = str(self.propType.currentText())
+        #prop_type=str(self.propType.currentText())
+        prop_type = ''
+        username =str(self.username.text())
+        prop_number=None
+        user_password=str(self.userPassword.text())
+        self.userPassword.setText("")
 
-        prop_number   = str(self.userName.text()).strip()
-        prop_password = str(self.propPassword.text())
-        self.propPassword.setText("")
-
-        if prop_number=="":
-
+        if username=="":
             if self.localLogin is None:
                 return self.refuseLogin(False,"Local login not configured.")
-
             try:
                 locallogin_password=self.localLogin.password
             except AttributeError:
                 return self.refuseLogin(False,"Local login not configured.")
 
-            if prop_password!=locallogin_password:
+            if user_password!=locallogin_password:
                 return self.refuseLogin(None,"Invalid local login password.")
 
             now=time.strftime("%Y-%m-%d %H:%M:S")
-            prop_dict = {'code':'', 'number':'', 'title':'', 'proposalId':''}
-            ses_dict  = {'sessionId':'', 'startDate':now, 'endDate':now, 'comments':''}
+            prop_dict={'code':'', 'number':'', 'title':'', 'proposalId':''}
+            ses_dict={'sessionId':'', 'startDate':now, 'endDate':now, 'comments':''}
             try:
                 locallogin_person=self.localLogin.person
             except AttributeError:
                 locallogin_person="local user"
-            pers_dict = {'familyName':locallogin_person}
-            lab_dict  = {'name':'ESRF'}
-            cont_dict = {'familyName':'local contact'}
+            pers_dict={'familyName':locallogin_person}
+            lab_dict={'name':'ESRF'}
+            cont_dict={'familyName':'local contact'}
 
             logging.getLogger().debug("ProposalBrick: local login password validated")
             
             return self.acceptLogin(prop_dict,pers_dict,lab_dict,ses_dict,cont_dict)
 
-        try:
-            beamline_name=os.environ[ENV_BEAMLINE_NAME]
-        except KeyError:
-            beamline_name=""
-
-        if beamline_name=="":
-            return self.refuseLogin(False,"Unknown beamline (environment variable %s is missing)." % ENV_BEAMLINE_NAME)
-
-       
-        # We could write some validation on the proposal number here
-        #try:
-        #    prop_number=int(prop_number)
-        #except (ValueError,TypeError):
-        #    return self.refuseLogin(None,"Invalid proposal number.")
-
-        if self.ldapConnection is None and str(beamline_name) != "My_office":
+        if self.ldapConnection is None:
             return self.refuseLogin(False,'Not connected to LDAP, unable to verify password.')
         if self.dbConnection is None:
             return self.refuseLogin(False,'Not connected to the ISPyB database, unable to get proposal.')
 
-        if str(beamline_name) == "My_office":
-            #self._do_login(prop_type,prop_number,prop_password,beamline_name, impersonate=True)
-            self._do_login(prop_number,prop_password,beamline_name, impersonate=True)
-        else:
-            self._do_login(prop_number,prop_password,beamline_name)
-            #self._do_login(prop_type,prop_number,prop_password,beamline_name, impersonate=True)
+        self._do_login(prop_type, username ,user_password, self.dbConnection.beamline_name)
 
     def passControl(self,has_control_id):
         pass
@@ -448,8 +517,7 @@ class MaxLoginBrick(BlissWidget):
         if propertyName=='ldapServer':
             self.ldapConnection=self.getHardwareObject(newValue)
         elif propertyName=='codes':
-            pass
-            #self.setCodes(newValue)
+            self.setCodes(newValue)
         elif propertyName=='localLogin':
             self.localLogin=self.getHardwareObject(newValue)
         elif propertyName=='dbConnection':
@@ -471,30 +539,26 @@ class MaxLoginBrick(BlissWidget):
             try:
                 self.logoutButton.setPixmap(Icons.load(icons_list[1]))
             except IndexError:
-                pass                
+                pass
+        elif propertyName == 'session':
+            self.session_hwobj = self.getHardwareObject(newValue)
         else:
             BlissWidget.propertyChanged(self,propertyName,oldValue,newValue)
 
-    def _do_login(self, proposal_number,proposal_password,beamline_name, impersonate=False):
-
+    def _do_login(self, proposal_code,username,user_password,beamline_name, impersonate=False):
         if not impersonate:
-            login_name=str(proposal_number)
-            #login_name=self.dbConnection.translate(proposal_code,'ldap')+str(proposal_number)
-            #login_name=self.dbConnection.translate(proposal_number,'ldap')
-
-            logging.getLogger().debug('ProposalBrick: querying LDAP...')
-            ok, msg = self.ldapConnection.login(login_name,proposal_password)
-
+            login_name = username
+            logging.getLogger().debug('MaxLoginBrick: querying LDAP...')
+            ok, msg=self.ldapConnection.login(login_name,user_password)
             if not ok:
                 msg="%s." % msg.capitalize()
                 self.refuseLogin(None,msg)
                 return
 
-            logging.getLogger().debug("ProposalBrick: password for %s validated" % (login_name))
+            logging.getLogger().debug("MaxLoginBrick: password for %s validated" % (login_name))
 
         # Get proposal and sessions
-        logging.getLogger().debug('ProposalBrick: querying ISPyB database...')
-        #prop=self.dbConnection.getProposal(proposal_code,proposal_number)
+        logging.getLogger().debug('MaxLoginBrick: querying ISPyB database...')
         prop=self.dbConnection.get_proposal_by_username(login_name)
 
         # Check if everything went ok
@@ -503,12 +567,11 @@ class MaxLoginBrick(BlissWidget):
             prop_ok=(prop['status']['code']=='ok')
         except KeyError:
             prop_ok=False
-
         if not prop_ok:
             self.ispybDown()
             return
 
-        logging.getLogger().debug('ProposalBrick: got sessions from ISPyB...')
+        logging.getLogger().debug('MaxLoginBrick: got sessions from ISPyB...')
 
         proposal=prop['Proposal']
         person=prop['Person']
@@ -550,21 +613,17 @@ class MaxLoginBrick(BlissWidget):
                                 break
 
         if todays_session is None:
-            if BlissWidget.isInstanceRoleClient():
-                self.refuseLogin(None,"You don't have a session scheduled for today!")
-                return
+            logging.debug("proposal object: %s" % str(proposal))
+            logging.debug("proposal code and number are: %s and %s " % (proposal["code"], proposal["number"]))
+            is_inhouse = self.session_hwobj.is_inhouse(proposal["code"], proposal["number"])
+            if not is_inhouse:
+                if BlissWidget.isInstanceRoleClient():
+                    self.refuseLogin(None,"You don't have a session scheduled for today!")
+                    return
 
-            if not self.askForNewSession():
-                self.refuseLogin(None,None)
-                return
-            #if not self.dbConnection.isInhouseUser(proposal_code,proposal_number):
-            #    if BlissWidget.isInstanceRoleClient():
-            #        self.refuseLogin(None,"You don't have a session scheduled for today!")
-            #        return
-#
-            #    if not self.askForNewSession():
-            #        self.refuseLogin(None,None)
-            #        return
+                if not self.askForNewSession():
+                    self.refuseLogin(None,None)
+                    return
 
             current_time=time.localtime()
             start_time=time.strftime("%Y-%m-%d 00:00:00", current_time)
