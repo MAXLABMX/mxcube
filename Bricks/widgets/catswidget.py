@@ -6,6 +6,18 @@
 #      by: The PyQt User Interface Compiler (pyuic) 3.18.1
 #
 # WARNING! All changes made in this file will be lost!
+""" 
+Derived from the ESRF mxCuBE catswidget
+ -fix the Abort Bug
+ -enable setondiff for the catsmaint object 
+ -fix the bug of MD2 jam during exchange or unload
+"""
+__author__ = "Jie Nan"
+__credits__ = ["The MxCuBE collaboration"]
+
+__email__ = "jie.nan@maxlab.lu.se"
+__status__ = "Alpha"
+
 
 
 from qt import *

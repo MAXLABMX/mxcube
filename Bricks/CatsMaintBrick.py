@@ -1,3 +1,14 @@
+""" 
+Derived from the ESRF mxCuBE CatsMaintBrick
+ -add more controls, including Regulation Off, Gripper Dry/Open/Close, Reset Memory, Set Sample On Diff
+ -add CATS dewar layout
+"""
+__author__ = "Jie Nan"
+__credits__ = ["The MxCuBE collaboration"]
+
+__email__ = "jie.nan@maxlab.lu.se"
+__status__ = "Alpha"
+
 import string
 import logging
 import time

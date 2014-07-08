@@ -1,3 +1,15 @@
+""" 
+Derived from the ESRF mxCuBE CatsBrick
+ -fix the Abort Bug
+ -enable setondiff for the catsmaint object 
+ -fix the bug of MD2 jam during exchange or unload
+"""
+__author__ = "Jie Nan"
+__credits__ = ["The MxCuBE collaboration"]
+
+__email__ = "jie.nan@maxlab.lu.se"
+__status__ = "Alpha"
+
 import string
 import logging
 import time

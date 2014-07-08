@@ -7,6 +7,17 @@
 #
 # WARNING! All changes made in this file will be lost!
 
+""" 
+Derived from the ESRF mxCuBE catsmaintawidget
+ -add more controls, including Regulation Off, Gripper Dry/Open/Close, Reset Memory, Set Sample On Diff
+ -add CATS dewar layout
+"""
+__author__ = "Jie Nan"
+__credits__ = ["The MxCuBE collaboration"]
+
+__email__ = "jie.nan@maxlab.lu.se"
+__status__ = "Alpha"
+
 
 from qt import *
 
