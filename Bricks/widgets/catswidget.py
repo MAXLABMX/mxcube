@@ -56,6 +56,7 @@ class CatsWidget(QWidget):
         layout11 = QHBoxLayout(None,0,6,"layout11")
         layout13.addLayout(layout11)
 
+
         self.btAbort = QPushButton(self,"btAbort")
         btAbort_font = QFont(self.btAbort.font())
         self.btAbort.setFont(btAbort_font)
@@ -96,7 +97,7 @@ class CatsWidget(QWidget):
         item.setText(0,self.__tr("New Item"))
 
         self.ckShowEmptySlots.setText(self.__tr("Show empty slots"))
-        self.btLoadSample.setText(self.__tr("Load"))
+        self.btLoadSample.setText(self.__tr("Load/Exchange"))
         self.btUnloadSample.setText(self.__tr("Unload"))
         self.btAbort.setText(self.__tr("Abort"))
         self.textLabel1.setText(self.__tr("State:"))

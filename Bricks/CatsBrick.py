@@ -6,10 +6,10 @@ import traceback
 import sys
 import sample_changer.GenericSampleChanger as SampleChanger
 
-
 from BlissFramework import BaseComponents 
 from widgets.catswidget import CatsWidget
 
+from qt import *
 
 __category__ = 'SC'            
 
@@ -28,7 +28,7 @@ class CatsBrick(BaseComponents.BlissWidget):
         #qt.QObject.connect(self.widget.btLoadSample,qt.SIGNAL('clicked()'),self.onMenuLoad)        
         qt.QObject.connect(self.widget.btUnloadSample,qt.SIGNAL('clicked()'),self._unloadSample)
         qt.QObject.connect(self.widget.btAbort,qt.SIGNAL('clicked()'),self._abort)                     
-                
+ 
         self.device=None
         self.phase = "Unknown"
         self.state = "Unknown"
@@ -41,6 +41,8 @@ class CatsBrick(BaseComponents.BlissWidget):
         
         self.widget.ckShowEmptySlots.setChecked(False)
         qt.QObject.connect(self.widget.ckShowEmptySlots,qt.SIGNAL('clicked()'),self.onShowEmptySlots)
+        
+        self.defineSignal('SampleSelected', ()) # send the information to catsMaint to set on diff, JN,20140701
 
         self._clearTable()
         
@@ -81,6 +83,8 @@ class CatsBrick(BaseComponents.BlissWidget):
         
     def onStatusChanged(self, status):
         self.widget.txtState.setText(str(status))
+        if str(status)== "Moving": # fix Abort bug
+           self.widget.btAbort.setEnabled(True)
         
     def onInfoChanged(self):
         if self._changedStructure(self.root):
@@ -117,6 +121,7 @@ class CatsBrick(BaseComponents.BlissWidget):
         else:
             element = self.device.getComponentByAddress(item.text(0))
             self.onMenuSelect()
+            self.emit(PYSIGNAL('SampleSelected'), (item.text(0),)) # an example of item.text(0) is 2:05
 
     def onListPopupMenu(self, item, point, col):
         component = self._getSelectedComponent()
@@ -204,13 +209,14 @@ class CatsBrick(BaseComponents.BlissWidget):
             moving = (self.device.getState() in [SampleChanger.SampleChangerState.Moving, SampleChanger.SampleChangerState.Loading, SampleChanger.SampleChangerState.Unloading])
             self.widget.btLoadSample.setEnabled(ready and not charging and (selected_sample is not None) and selected_sample.isPresent() and (selected_sample != self._loadedSample))
             self.widget.btUnloadSample.setEnabled(ready and not charging and self.device.hasLoadedSample())
-        self.widget.btAbort.setEnabled(self.device is not None and not self.device.isReady())
+            self.widget.btAbort.setEnabled((self.device is not None) and (not self.device.isReady()))
+           
 
     def _abort(self):
         logging.getLogger("user_level_log").info("Abort")
         if self.device is not None:
             self.device.abort()
-            
+
     def _loadSample(self):
         try:
             if self.device is not None:

@@ -33,5 +33,6 @@
   <!--channel type="tango" name="_chnSampleIsDetected" polling="events">di_PRI1_GFM</channel-->
   <channel type="tango" name="_chnSampleIsDetected" polling="events">di_PRI2_API</channel>
   <channel type="tango" name="_chnPowered" polling="events">Powered</channel>
+  <command type="tango" name="_cmdRestartMD2" tangoname="i9113/MicroDiff/NewMD">restart</command>
 </equipment>
 

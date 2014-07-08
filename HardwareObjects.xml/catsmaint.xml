@@ -8,6 +8,13 @@
   <command type="tango" name="_cmdAbort">abort</command>
   <command type="tango" name="_cmdPowerOn">powerOn</command>
   <command type="tango" name="_cmdPowerOff">powerOff</command>
+  <command type="tango" name="_cmdClearMemory">clear_memory</command>
+  <command type="tango" name="_cmdResetParameters">reset_parameters</command>
+  <command type="tango" name="_cmdSetOnDiff">setondiff</command>
+  <command type="tango" name="_cmdCalibration">toolcalibration</command>
+  <command type="tango" name="_cmdDry">dry</command>
+  <command type="tango" name="_cmdOpenTool">opentool</command>
+  <command type="tango" name="_cmdCloseTool">closetool</command>
 
   <command type="tango" name="_cmdOpenLid1">openlid1</command>
   <command type="tango" name="_cmdCloseLid1">closelid1</command>
@@ -18,6 +25,7 @@
   <channel type="tango" name="_chnLid1State" polling="1000">di_Lid1Open</channel>
   <channel type="tango" name="_chnLid2State" polling="1000">di_Lid2Open</channel>
   <channel type="tango" name="_chnLid3State" polling="1000">di_Lid3Open</channel>
+  <channel type="tango" name="_chnToolOpenClose" polling="1000">do_ToolOpenClose</channel>
 
   <command type="tango" name="_cmdRegulOn">regulon</command>
   <command type="tango" name="_cmdRegulOff">reguloff</command>
