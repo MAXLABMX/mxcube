@@ -213,14 +213,17 @@ class CatsBrick(BaseComponents.BlissWidget):
         if self.device is None or not self.device.isReady():
             self.widget.btLoadSample.setEnabled(False) 
             self.widget.btUnloadSample.setEnabled(False)
-            self.widget.btAbort.setEnabled(False)
+            if self.device.isReady():
+                self.widget.btAbort.setEnabled(False)
         else:
             charging = (self.device.getState() == SampleChanger.SampleChangerState.Charging)
             ready = (self.device.getState() == SampleChanger.SampleChangerState.Ready)
             standby = (self.device.getState() == SampleChanger.SampleChangerState.StandBy)
             moving = (self.device.getState() in [SampleChanger.SampleChangerState.Moving, SampleChanger.SampleChangerState.Loading, SampleChanger.SampleChangerState.Unloading])
-            self.widget.btLoadSample.setEnabled(ready and not charging and (selected_sample is not None) and selected_sample.isPresent() and (selected_sample != self._loadedSample))
-            self.widget.btUnloadSample.setEnabled(ready and not charging and self.device.hasLoadedSample())
+            self.widget.btLoadSample.setEnabled(ready and not charging and (selected_sample is not None) and selected_sample.isPresent() and (selected_sample != self._loadedSample) and (not self.device._startLoad)) # disable the button immediately after 1 click
+            self.widget.btUnloadSample.setEnabled(ready and not charging and self.device.hasLoadedSample() and (not self.device._startLoad)) # disable the button immediately after 1 click
+    #        self.widget.btLoadSample.setEnabled(ready and not charging and (selected_sample is not None) and selected_sample.isPresent() and (selected_sample != self._loadedSample))
+    #        self.widget.btUnloadSample.setEnabled(ready and not charging and self.device.hasLoadedSample())
             self.widget.btAbort.setEnabled((self.device is not None) and (not self.device.isReady()))
            
 

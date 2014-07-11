@@ -182,9 +182,9 @@ class CatsMaintBrick(BaseComponents.BlissWidget):
             ready = not self._pathRunning
             #ready = not self.device.isDeviceReady()
             
-            self.widget.btPowerOn.setEnabled(ready and not self._poweredOn)
+            self.widget.btPowerOn.setEnabled(not self._poweredOn)
             self.widget.btPowerOff.setEnabled(ready and self._poweredOn)
-            self.widget.btResetError.setEnabled(ready)
+            self.widget.btResetError.setEnabled(True)
             self.widget.btResetMemory.setEnabled(ready and self.widget.ckCATSDB.isChecked())
             self.widget.btOpenTool.setEnabled(ready and self._poweredOn and (not self._toolOpenClose) and self.widget.ckCalGrip.isChecked())
             self.widget.btCloseTool.setEnabled(ready and self._poweredOn and self._toolOpenClose and self.widget.ckCalGrip.isChecked()) 
