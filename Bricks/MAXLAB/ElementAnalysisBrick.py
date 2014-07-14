@@ -97,7 +97,7 @@ class ElementAnalysisBrick(BlissWidget):
         self.energiesWindow.setColumnWidth(2,150)
         self.graphPanel.layout().addWidget(self.graph)
         self.graphPanel.layout().addWidget(energyBox)
-        QObject.connect(self.energiesWindow,SIGNAL("clicked(QListViewItem)"),self.showEnergyMarker)
+#        QObject.connect(self.energiesWindow,SIGNAL("clicked(QListViewItem)"),self.showEnergyMarker)
         box1=QHBox(self)
         box10=QHGroupBox(box1)
         box10.setTitle("Graph settings")

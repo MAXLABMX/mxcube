@@ -1,0 +1,161 @@
+#!/usr/bin/env python
+#
+#
+import sys, os, os.path
+
+try:    
+    BLISSADM = os.environ['BLISSADM']
+except: 
+    BLISSADM = os.path.expanduser('~blissadm') or '/users/blissadm'
+
+SPECD  = os.path.join(BLISSADM,'local/spec/spec.d')
+
+filetemp = '''<equipment>
+  <username>%(specname)s</username>
+  <motors>
+%(motlist)s    </motors>
+    <procedures>
+    <procedure hwrid="/procedures/ascan"/>
+    <procedure hwrid="/procedures/dscan"/>
+    <procedure hwrid="/procedures/a2scan"/>
+    <procedure hwrid="/procedures/d2scan"/>
+  </procedures>
+</equipment>
+'''
+
+mottemp =  '<device hwrid="/%(specname)s/%(motormne)s"/>\n'
+
+onemottemp = '''<device class = "SpecMotor">
+  <username>%(motormne)s</username>
+  <specname>%(motormne)s</specname>
+  <specversion>%(machine)s:%(specname)s</specversion>
+</device>
+'''
+
+def checkDir( specversion ):
+    destdir = os.path.join(hwpath, specversion )
+
+    if not os.path.exists( hwpath ):
+        if raw_input('%s does not exist ; do you want to create directory ? (y/n) ' % hwpath) in ['y', 'Y', 'yes']:
+            os.makedirs(hwpath)
+        else:
+            print "%s directory does not exist. Create it first !\n" % hwpath
+            sys.exit(0)
+
+    if os.path.exists( destdir ):
+	print 'Directory %s for this Spec version already exists in %s' % (destdir, hwpath)
+	if not raw_input('Are you sure you want to rewrite the existing files ? (y/n)') in ['y', 'Y', 'yes']:
+	    sys.exit(0)
+      
+    if not os.path.exists(destdir):
+	os.makedirs(destdir)
+
+
+def getMotList( machine, specver ): 
+
+    key = (('HOST' in os.environ) and 'HOST') or 'HOSTNAME'
+    if key in os.environ:
+        localhost = os.environ[key]
+    else:
+	import socket
+        localhost = socket.gethostname()
+    if not localhost:
+        print "Error: could not detername local host name"
+	sys.exit(1)
+
+    configfile =  os.path.join(SPECD, specver, 'config' )
+    
+    import string
+    if string.split(machine, '.')[0] != string.split(localhost, '.')[0]:
+        rsh = 'rsh -l blissadm %s' % machine
+        null = '> /dev/null 2>&1'
+        cmd = '%s ls %s' % (rsh, null)
+        if os.system(cmd) != 0:
+            print "Error: could not do a remote shell on %s" % machine
+	    sys.exit(1)
+
+        remoteconfig = configfile
+        configfile = '/tmp/blissframework_%s_%s' % (machine, specver) 
+	if os.path.exists(configfile):
+	    os.system('rm -f %s' % configfile)
+        cmd = '%s cat %s > %s' % (rsh, remoteconfig, configfile)
+        if os.system(cmd) != 0:
+            print "Error: could not copy remote config file on %s for %s" % \
+		  (machine, specver)
+	    sys.exit(1)
+
+    cfilelines  = open(configfile).read().split('\n')
+
+    motlist = []
+    for line in cfilelines:
+        line = line.strip()
+      
+        if not line.startswith('MOT'): continue
+
+        parts =   line.split()
+        if len(parts) >= 13:
+             mne  = parts[11]
+             name = reduce(lambda a,b: a +' '+str(b),parts[12:])
+             motlist.append( [mne,name] )
+
+    return motlist
+
+def createMotorXML( machine, specver, motlist ):
+
+     mydict = {}
+     mydict['machine']  = machine
+     mydict['specname'] = specver
+
+     for mne,name in motlist:
+        mydict['motormne'] = mne
+        mydict['motorname'] = name
+        outfile = os.path.join( hwpath, specver, '%s.xml' % mne )
+        open(outfile,'w').write( onemottemp % mydict )
+
+def createSpecEquipment( specver, motlist ):
+
+    vardict = {}
+    vardict['specname'] = specver
+
+    motstr = ''
+    for mne,name in motlist:
+         vardict['motormne']  = mne
+         motstr +=  mottemp % vardict 
+
+    outfile = os.path.join( hwpath, '%s.xml' % specver ) 
+
+    vardict['motlist'] = motstr
+
+    open(outfile,'w').write( filetemp % vardict )
+
+
+if __name__ == '__main__':
+    import sys
+
+    if len(sys.argv) != 4:
+       print "Usage: %s machine specversion hwrdir" % sys.argv[0]
+       sys.exit(0)
+
+    machine = sys.argv[1]
+    specver = sys.argv[2]
+    hwpath = os.path.join(BLISSADM, sys.argv[3])
+
+    checkDir( specver )  
+    motlist = getMotList( machine, specver )
+    createMotorXML( machine, specver, motlist )
+    createSpecEquipment( specver, motlist )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

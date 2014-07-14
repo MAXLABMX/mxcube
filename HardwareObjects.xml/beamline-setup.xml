@@ -4,7 +4,7 @@
   <!-- Objects directly associatd with hardware -->
   <object href="/transmission-mockup" role="transmission"/>
   <object href="/minidiff" role="diffractometer"/>
-  <object href="/sc-mockup" role="sample_changer"/>    
+  <object href="/cats" role="sample_changer"/>    
   <object href="/spec_mxCuBE/res" role="resolution"/>
 
   <!-- Software (abstract) concepts -->

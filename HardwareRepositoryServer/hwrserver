@@ -1,0 +1,9 @@
+#! /bin/ksh
+# Copyright (c) 2004 Bliss group, ESRF, France
+# System startup script for HardwareRepositoryServer
+
+. blissrc
+
+HWRSERVERHOME=${BLISSADM}/applications/HardwareRepository/
+
+exec python ${HWRSERVERHOME}/HardwareRepositoryServer.py $*

@@ -5,7 +5,7 @@
   <command version="130.235.94.114:kappa" type="spec" name="getBeamInfo">getMxBeamInfo9113</command>
   <command type="tango" name="save_centring_position" tangoname="i9113/MicroDiff/NewMD">saveCentringPositions</command>
   <device role="camera" hwrid="/ccd/md_camera"></device>
-  <device role="sample_changer" hwrid="/sc-mockup"></device>
+  <device role="sample_changer" hwrid="/cats"></device>
   <wagolight>/udiff_light</wagolight>
   <aperture>/udiff_aperturemot</aperture>
 
