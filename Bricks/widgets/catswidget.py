@@ -109,8 +109,8 @@ class CatsWidget(QWidget):
         item.setText(0,self.__tr("New Item"))
 
         self.ckShowEmptySlots.setText(self.__tr("Show empty slots"))
-        self.btLoadSample.setText(self.__tr("Load/Exchange"))
-        self.btUnloadSample.setText(self.__tr("Unload"))
+        self.btLoadSample.setText(self.__tr("Mount/Exchange"))
+        self.btUnloadSample.setText(self.__tr("Unmount"))
         self.btAbort.setText(self.__tr("Abort"))
         self.textLabel1.setText(self.__tr("State:"))
 

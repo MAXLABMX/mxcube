@@ -164,6 +164,7 @@ class CatsMaintWidget(QWidget):
         btBack_font.setPointSize(11)
         self.btBack.setFont(btBack_font)
         layout13_1.addWidget(self.btBack)
+        QToolTip.add(self.btBack,"<p>Put the vial hold by the gripper back to the memorized position.</p>")
 
         self.btSafe = QPushButton(self.groupBox13,"btSafe")
         self.btSafe.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.btSafe.sizePolicy().hasHeightForWidth()))
@@ -171,6 +172,7 @@ class CatsMaintWidget(QWidget):
         btSafe_font.setPointSize(11)
         self.btSafe.setFont(btSafe_font)
         layout13_1.addWidget(self.btSafe)
+        QToolTip.add(self.btSafe,"Drive the Robot(CATS) Arm to home position.")
 
         self.btDryGripper = QPushButton(self.groupBox13,"btDryGripper")
         self.btDryGripper.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Fixed,0,0,self.btDryGripper.sizePolicy().hasHeightForWidth()))
@@ -184,7 +186,6 @@ class CatsMaintWidget(QWidget):
         layout13_2 = QHBoxLayout(None,0,6,"layout13_2")
         
         self.ckCATSDB = QCheckBox(self.groupBox13,"ckCATSDB")
-        #layout13_2.setFixedWidth(300)
         layout13_2.addWidget(self.ckCATSDB)
 
         self.btResetMemory = QPushButton(self.groupBox13,"btResetMemory")
@@ -193,6 +194,7 @@ class CatsMaintWidget(QWidget):
         btResetMemory_font.setPointSize(11)
         self.btResetMemory.setFont(btResetMemory_font)
         layout13_2.addWidget(self.btResetMemory)
+        QToolTip.add(self.btResetMemory,"<p>Reset the memory of Robot. Be cautious when using this function!! The sample position will be lost if a sample is already loaded.</p>")
 
 
 	self.btSetOnDiff = QPushButton(self.groupBox13,"btSetOnDiff")
@@ -201,6 +203,7 @@ class CatsMaintWidget(QWidget):
         btSetOnDiff_font.setPointSize(11)
         self.btSetOnDiff.setFont(btSetOnDiff_font)
         layout13_2.addWidget(self.btSetOnDiff)
+        QToolTip.add(self.btSetOnDiff,"<p>Define the PUC position of the loaded sample, using the selected position on the sample list. It is often used after ResetMemory.</p>")
         
         layout13_a.addLayout(layout13_2)
 
@@ -215,6 +218,7 @@ class CatsMaintWidget(QWidget):
         btCalibration_font.setPointSize(11)
         self.btCalibration.setFont(btCalibration_font)
         layout13_3.addWidget(self.btCalibration)
+        QToolTip.add(self.btCalibration,"<p>Calibrate the gripper position using a laser pointer and a rotating target. Be cautious!! Run after replacing the gripper, <i>e.g.</i> due to collision.</p>")
 
 
         self.btOpenTool = QPushButton(self.groupBox13,"btOpenTool")
