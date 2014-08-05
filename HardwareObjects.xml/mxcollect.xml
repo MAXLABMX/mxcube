@@ -53,17 +53,6 @@
   <channel type="spec" name="helical">HELICAL_OSCIL</channel>
   <channel type="spec" name="helical_pos">HELICAL_OSCIL_POS</channel>
   <channel type="spec" name="helical_pars">HELICAL_PARS</channel-->
-  <!--auto_processing>
-      <program>
-          <executable>/opt/pxsoft/bin/autoproc_master.pl</executable>
-          <event>before image after end_multicollect</event>
-      </program>
-      <program>
-          <executable>/users/blissadm/bin/autoproc-launcher.py</executable>
-          <event>before</event>
-      </program>
-  </auto_processing-->
-
   <auto_processing>
      <program>
         <executable>/usr/local/xtal/autoproc/autoproc_master.pl</executable>
