@@ -25,7 +25,7 @@ class MAXDiskUsageBrick(BlissWidget):
         self.timer=QTimer()
 
         QHBoxLayout(self)
-        self.setSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.MinimumExpanding,QSizePolicy.MinimumExpanding)
         self.layout().addWidget(self.contentsBox)
 
     def run(self):
@@ -59,7 +59,7 @@ class MAXDiskUsageBrick(BlissWidget):
         p.close()
         s=""
         for disk in self.paths:
-            s=s+disk+"\t"+disklist[disk]+"\n"
+            s=s+disk+"  -  "+disklist[disk]+"\n"
         self.diskDisplay.setText(s)
 
 

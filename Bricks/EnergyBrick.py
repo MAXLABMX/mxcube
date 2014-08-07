@@ -55,11 +55,11 @@ class EnergyBrick(BlissWidget):
         box1=QHBox(self.paramsBox)
         self.currentEnergy=QLineEdit(box1)
         self.currentEnergy.setReadOnly(True)
-        self.currentEnergy.setAlignment(QWidget.AlignRight)
+        self.currentEnergy.setAlignment(QWidget.AlignLeft)
         self.currentEnergy.setFixedWidth(90)
         self.currentWavelength=QLineEdit(box1)
         self.currentWavelength.setReadOnly(True)
-        self.currentWavelength.setAlignment(QWidget.AlignRight)
+        self.currentWavelength.setAlignment(QWidget.AlignLeft)
         self.currentWavelength.setFixedWidth(60)
         self.paramsBox.layout().addMultiCellWidget(box1, 0, 0, 1, 3)
 
