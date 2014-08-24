@@ -3,6 +3,8 @@
   <username>Minidiff</username>
   <command version="130.235.94.114:kappa" type="spec" name="centerbeam">centerbeam</command>
   <command version="130.235.94.114:kappa" type="spec" name="getBeamInfo">getMxBeamInfo9113</command>
+  <!--20140824 Jie, add MD2_phase for manual mounting samples--> 
+  <command version="130.235.94.114:kappa" type="spec" name="MD2_phase">microdiff_phase</command>
   <command type="tango" name="save_centring_position" tangoname="i9113/MicroDiff/NewMD">saveCentringPositions</command>
   <device role="camera" hwrid="/ccd/md_camera"></device>
   <device role="sample_changer" hwrid="/cats"></device>
