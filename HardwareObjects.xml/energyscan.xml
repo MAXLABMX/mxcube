@@ -1,4 +1,5 @@
 <equipment class="EnergyScan">
+  <theoritical_edge_threshold>0.02</theoritical_edge_threshold>
   <specversion>130.235.94.114:kappa</specversion>
   <command type="spec" name="doEnergyScan">eprodc_do_energy_scan</command>
   <channel type="spec" name="scanStatusMsg">eprodc_energy_scan_msg</channel>

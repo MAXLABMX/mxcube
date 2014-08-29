@@ -75,8 +75,9 @@ class EnergyScanParametersWidget(qt.QWidget):
         else:
             self.data_path_widget.setEnabled(True)
             self.periodic_table.setEnabled(True)
-            self.data_path_widget.update_data_model(self.energy_scan.path_template)
-            self.periodic_table.periodicTable.\
+        #JN,20140825, fix the bug that the element and path information is not updated
+        self.data_path_widget.update_data_model(self.energy_scan.path_template)
+        self.periodic_table.periodicTable.\
                 tableElementChanged(self.energy_scan.element_symbol)
 
     def element_clicked(self, symbol, energy):
