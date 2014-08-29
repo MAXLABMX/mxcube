@@ -203,7 +203,7 @@ class CatsMaintWidget(QWidget):
         btSetOnDiff_font.setPointSize(11)
         self.btSetOnDiff.setFont(btSetOnDiff_font)
         layout13_2.addWidget(self.btSetOnDiff)
-        QToolTip.add(self.btSetOnDiff,"<p>Define the PUC position of the loaded sample, using the selected position on the sample list. It is often used after ResetMemory.</p>")
+        QToolTip.add(self.btSetOnDiff,"<p>Define the PUCK position of the loaded sample, using the selected position on the sample list. It is often used after ResetMemory.</p>")
         
         layout13_a.addLayout(layout13_2)
 
@@ -218,7 +218,7 @@ class CatsMaintWidget(QWidget):
         btCalibration_font.setPointSize(11)
         self.btCalibration.setFont(btCalibration_font)
         layout13_3.addWidget(self.btCalibration)
-        QToolTip.add(self.btCalibration,"<p>Calibrate the gripper position using a laser pointer and a rotating target. Be cautious!! Run after replacing the gripper, <i>e.g.</i> due to collision.</p>")
+        QToolTip.add(self.btCalibration,"<p>Calibrate the gripper position using a laser pointer and a rotating target. Be cautious!! Run after replacing the gripper or due to collision.</p>")
 
 
         self.btOpenTool = QPushButton(self.groupBox13,"btOpenTool")
