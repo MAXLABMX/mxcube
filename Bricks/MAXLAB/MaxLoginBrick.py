@@ -32,7 +32,7 @@ class MaxLoginBrick(BlissWidget):
         self.session_hwobj = None
 
         # Initialize session info
-        self.proposal=None
+        self.proposal='mxihr9113'
         self.session=None
         self.person=None
         self.laboratory=None
@@ -78,6 +78,7 @@ class MaxLoginBrick(BlissWidget):
         self.username.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.MinimumExpanding)
         self.username.setPaletteBackgroundColor(widget_colors.LIGHT_RED)
         self.username.setFixedWidth(50)
+        self.username.setText(self.proposal)
         password_label=QLabel("   Password: ",self.loginBox)
         self.userPassword=QLineEdit(self.loginBox)
         self.userPassword.setEchoMode(QLineEdit.Password)
@@ -442,7 +443,7 @@ class MaxLoginBrick(BlissWidget):
         except AttributeError:
             locallogin_person="local user"
         pers_dict={'familyName':locallogin_person}
-        lab_dict={'name':'ESRF'}
+        lab_dict={'name':'Maxlab'}
         cont_dict={'familyName':'local contact'}
         self.acceptLogin(prop_dict,pers_dict,lab_dict,ses_dict,cont_dict)
 
@@ -492,7 +493,7 @@ class MaxLoginBrick(BlissWidget):
             except AttributeError:
                 locallogin_person="local user"
             pers_dict={'familyName':locallogin_person}
-            lab_dict={'name':'ESRF'}
+            lab_dict={'name':'Maxlab'}
             cont_dict={'familyName':'local contact'}
 
             logging.getLogger().debug("ProposalBrick: local login password validated")
