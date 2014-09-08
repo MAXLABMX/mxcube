@@ -15,10 +15,10 @@
     <emot>energy</emot>
     <detdistmot>dtox</detdistmot>
     <beam>
-	<ax>0.00322591142795</ax>
-	<ay>0.00205520691593</ay>
-	<bx>113.790778143</bx>
-	<by>108.762585332</by>
+	<ax>0.00319602599266</ax>
+	<ay>0.00186802943976</ay>
+	<bx>113.830831497</bx>
+	<by>108.539965208</by>
     </beam>
     <beamsize>
       <!-- determined by apertures -->
@@ -79,10 +79,10 @@
     <default_exposure_time>5.0</default_exposure_time>
     <default_number_of_passes>1</default_number_of_passes>
     <beam>
-	<ax>0.00322591142795</ax>
-	<ay>0.00205520691593</ay>
-	<bx>113.790778143</bx>
-	<by>108.762585332</by>
+	<ax>0.00319602599266</ax>
+	<ay>0.00186802943976</ay>
+	<bx>113.830831497</bx>
+	<by>108.539965208</by>
     </beam>
     <hutch>bli9113</hutch>
   </BCM_PARS>

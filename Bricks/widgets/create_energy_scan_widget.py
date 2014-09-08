@@ -78,7 +78,10 @@ class CreateEnergyScanWidget(CreateTaskBase):
             if escan_model.get_path_template():
                 self._path_template = escan_model.get_path_template()
 
+            # JN,20140829, fix the bug-periodicTable not updated when selecting task
             self._data_path_widget.update_data_model(self._path_template)
+            self.periodic_table.periodicTable.tableElementChanged(escan_model.element_symbol) 
+
         elif not(isinstance(tree_item, queue_item.SampleQueueItem) or \
                      isinstance(tree_item, queue_item.DataCollectionGroupQueueItem)):
             self.setDisabled(True)

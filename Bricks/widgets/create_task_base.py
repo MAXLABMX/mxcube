@@ -301,7 +301,7 @@ class CreateTaskBase(qt.QWidget):
                 self._acq_widget.set_energies(energy_scan_result)
                 self._acq_widget.update_data_model(self._acquisition_parameters,
                                                    self._path_template)
-                self.get_acquisition_widget().use_osc_start(False)
+#                self.get_acquisition_widget().use_osc_start(False) #JN 20140829, disabled so the old values can be kept
 
             if self._data_path_widget:
                 self._data_path_widget.update_data_model(self._path_template)
@@ -346,7 +346,7 @@ class CreateTaskBase(qt.QWidget):
                 self._acq_widget.set_energies(energy_scan_result)
                 self._acq_widget.update_data_model(self._acquisition_parameters,
                                                    self._path_template)
-                self.get_acquisition_widget().use_osc_start(False)
+#                self.get_acquisition_widget().use_osc_start(False)  #JN 20140829, disabled so the old value can be kept
 
             if self._data_path_widget:
                 self._data_path_widget.update_data_model(self._path_template)

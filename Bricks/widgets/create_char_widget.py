@@ -6,6 +6,7 @@ import queue_model_objects_v1 as queue_model_objects
 import queue_model_enumerables_v1 as queue_model_enumerables
 import queue_item
 import ShapeHistory as shape_history
+import logging
 
 from widgets.widget_utils import DataModelInputBinder
 from create_task_base import CreateTaskBase
@@ -221,11 +222,16 @@ class CreateCharWidget(CreateTaskBase):
         CreateTaskBase.single_item_selection(self, tree_item)
         
         if isinstance(tree_item, queue_item.SampleQueueItem):
+            logging.info("no update, sample level")
+            """JN 20140829, keep the values user set up
             self._init_models()
             self._set_space_group(self._char_params.space_group)
+
             self._acq_widget.update_data_model(self._acquisition_parameters,
                                                 self._path_template)
             self._char_params_mib.set_model(self._char_params)
+            """ 
+
             #self._char_params = copy.deepcopy(self._char_params)
             #self._acquisition_parameters = copy.deepcopy(self._acquisition_parameters)
 
@@ -245,8 +251,11 @@ class CreateCharWidget(CreateTaskBase):
             data_collection = self._char.reference_image_collection
 
             self._char_params = self._char.characterisation_parameters
+            self._char_params_mib.set_model(self._char_params)
+
             self._acquisition_parameters = data_collection.acquisitions[0].\
                                            acquisition_parameters
+            logging.info("resolution is set to %s", str(self._acquisition_parameters.resolution))
 
             self._acq_widget.update_data_model(self._acquisition_parameters,
                                                self._path_template)
@@ -323,7 +332,7 @@ class CreateCharWidget(CreateTaskBase):
 
         data_collection = queue_model_objects.\
                           DataCollection([acq], sample.crystals[0],
-                                         processing_parameters)
+                                         self._processing_parameters)
 
         # Referance images for characterisations should be taken 90 deg apart
         # this is achived by setting overap to -89
