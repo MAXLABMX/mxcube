@@ -84,6 +84,8 @@ class MaxShortcut(BlissWidget):
     def propertyChanged(self, propertyName, oldValue, newValue):
         if propertyName == 'mnemonic':
             if self.specShell is not None:
+                self.disconnect(self.specShell,'connected',self.specConnected)
+                self.disconnect(self.specShell,'disconnected',self.specDisconnected)
                 self.disconnect(self.specShell,'busy',self.specBusy)
                 self.disconnect(self.specShell,'ready',self.specReady)
                 self.disconnect(self.specShell,'started',self.commandStarted)
@@ -92,6 +94,8 @@ class MaxShortcut(BlissWidget):
                 self.disconnect(self.specShell,'failed',self.commandFailed)
             self.specShell = self.getHardwareObject(newValue)
             if self.specShell is not None:
+                self.connect(self.specShell,'connected',self.specConnected)
+                self.connect(self.specShell,'disconnected',self.specDisconnected)
                 self.connect(self.specShell,'busy',self.specBusy)
                 self.connect(self.specShell,'ready',self.specReady)
                 self.connect(self.specShell,'started',self.commandStarted)
