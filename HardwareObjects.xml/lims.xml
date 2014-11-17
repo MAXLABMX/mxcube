@@ -1,7 +1,7 @@
 <object class="MaxLabISPybClient2">
 
   <ws_root>
-     http://srvv-ispyb-0.maxlab.lu.se:8080/ispyb-ejb3/ispybWS/
+     http://ispyb.maxlab.lu.se/ispyb-ejb3/ispybWS/
   </ws_root>
   <object role="session" href="/session"/>
   <!-- Name of the beamline -->
