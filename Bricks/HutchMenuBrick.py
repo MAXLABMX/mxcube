@@ -77,6 +77,7 @@ class HutchMenuBrick(BlissWidget):
         self.defineSlot('setSample',())
         #self.defineSlot('enableAutoStartLoopCentring', ())
         self.defineSlot('getSnapshot',())
+
         
         self.sampleCentreBox=QVBox(self)
         #self.sampleCentreBox.setInsideMargin(11)
@@ -398,7 +399,8 @@ class HutchMenuBrick(BlissWidget):
         self.emit(PYSIGNAL("newCentredPos"), (state, centring_status))
 
         if self.queue_hwobj.is_executing():
-            self.setEnabled(False)
+            #self.setEnabled(False) #JN, 20141216, fix the bug that the Centre button greys out after a sampel centring task.
+            self.disable()
 
     def centringSnapshots(self,state):
         if state is None:
@@ -832,7 +834,6 @@ class MenuButton(QToolButton):
         self.setEnabled(True)
     def commandFailed(self):
         self.commandDone()
-
 
 class HorizontalSpacer3(QWidget):
     def __init__(self,*args):
